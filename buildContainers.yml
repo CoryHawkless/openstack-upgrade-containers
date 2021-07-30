@@ -1,15 +1,17 @@
+- hosts: all
+  vars_files:
+    - group_vars/all.yml
+  tasks:
 
     - name: Container include - Upgraders
       tags: container-upgrader
       include_tasks:  containers/dockerContainer.yml
       vars:
          containers:
-
-
               UpgradeO:
                  name: Upgrader-Ocata
-                 target: nova_API
-                 image: "ocata-nova"
+                 target: all
+                 image: "ocata"
                  command: "/bin/sleep infinity"
                  networks:
                    - name: bridge
@@ -26,8 +28,8 @@
 
               UpgradeQ:
                  name: Upgrader-Queens
-                 target: nova_API
-                 image: "queens-upgrader"
+                 target: all
+                 image: "queens"
                  command: "/bin/sleep infinity"
                  networks:
                    - name: bridge
@@ -44,8 +46,8 @@
 
               UpgradeS:
                  name: Upgrader-Stein
-                 target: nova_API
-                 image: "stein-upgrader"
+                 target: all
+                 image: "stein"
                  command: "/bin/sleep infinity"
                  networks:
                    - name: bridge
@@ -62,8 +64,8 @@
 
               UpgradeU:
                  name: Upgrader-Ussuri
-                 target: nova_API
-                 image: "ussuri-upgrader"
+                 target: all
+                 image: "ussuri"
                  command: "/bin/sleep infinity"
                  networks:
                    - name: bridge
@@ -78,11 +80,10 @@
                         dest: /etc/nova/nova.conf
                         generic:
 
-
               KeystoneV:
                 name: Keystone-Upgrader-Victoria
-                target: keystone_API
-                image: "{{docker_registry}}/keystone"
+                target: all
+                image: "victoria"
                 command: "/bin/sleep infinity"
                 networks:
                   - name: bridge
@@ -92,45 +93,11 @@
                         src: keystone.conf.j2
                         dest: /etc/keystone/keystone.conf
                         generic:
-                    keystonewsgi.conf:
-                        src: keystone.wsgi.conf.j2
-                        dest: /etc/apache2/sites-available/keystone.conf
-                        generic:
-                  volumes:
-                    keys:
-                        type: local
-                        volumeName: keys
-                        dest: /etc/keystone/keys/
-                  files:
-                    fernet_0:
-                        src_text: "{{fernet_0}}"
-                        dest: /etc/keystone/keys/fernet/0
-                        generic:
-                    fernet_1:
-                        src_text: "{{fernet_1}}"
-                        dest: /etc/keystone/keys/fernet/1
-                        generic:
-                    credential_0:
-                        src_text: "{{credential_0}}"
-                        dest: /etc/keystone/keys/credential/0
-                        generic:
-                    credential_1:
-                        src_text: "{{credential_1}}"
-                        dest: /etc/keystone/keys/credential/1
-                        generic:
-                    receipt_0:
-                        src_text: "{{receipt_0}}"
-                        dest: /etc/keystone/keys/receipt/0
-                        generic:
-                    receipt_1:
-                        src_text: "{{receipt_1}}"
-                        dest: /etc/keystone/keys/receipt/1
-                        generic:
 
               NovaV:
                 name: Nova-Upgrader-Victoria
-                target: nova_API
-                image: "{{docker_registry}}/nova"
+                target: all
+                image: "victoria"
                 command: "/bin/sleep infinity"
                 networks:
                   - name: bridge
@@ -141,35 +108,24 @@
                         dest: /etc/nova/nova.conf
                         generic:
 
-
-
               GlanceV:
                 name: Glance-Upgrader-Victoria
-                target: glance_API
-                image: "{{docker_registry}}/glance"
+                target: all
+                image: "victoria"
                 command: "/bin/sleep infinity"
                 networks:
                     - name: bridge
                 mappings:
                     templates:
-                      cinder.keyring:
-                           src: openstack.keyring.j2
-                           dest: /etc/ceph/ceph.client.openstack.keyring
-                           generic:
-                      ceph.conf:
-                           src: ceph.conf.j2
-                           dest: /etc/ceph/ceph.conf
-                           generic:
                       glance.conf:
                         src: glance-api.conf.j2
                         dest: /etc/glance/glance-api.conf
                         generic:
 
-
               NeutronV:
                 name: Neutron-Upgrader-Victoria
-                target: neutron_API
-                image: "{{docker_registry}}/neutron"
+                target: all
+                image: "victoria"
                 command: "/bin/sleep infinity"
                 networks:
                   - name: bridge
@@ -183,17 +139,11 @@
                         src: ml2_conf.ini.j2
                         dest: /etc/neutron/plugins/ml2/ml2_conf.ini
                         generic:
-                  files:
-                    startSH:
-                        src: start_neutron.sh
-                        dest: /start.sh
-                        generic:
-
 
               CinderV:
                  name: Upgrader-Victoria
-                 target: nova_API
-                 image: "{{docker_registry}}/cinder"
+                 target: all
+                 image: "victoria"
                  command: "/bin/sleep infinity"
                  networks:
                    - name: bridge
@@ -205,9 +155,8 @@
                          generic:
 
 
-
-
-
-
       with_dict: "{{containers}}"
       when: item.value.target in group_names
+
+  become: yes
+  become_user: root
