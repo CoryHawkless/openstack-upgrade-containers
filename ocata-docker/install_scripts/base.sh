@@ -14,3 +14,4 @@ apt-get -y install nova-api nova-conductor nova-consoleauth nova-novncproxy nova
 apt-get -y install cinder-api cinder-common
 apt-get -y install keystone
 apt-get -y install glance
+apt-get -y install python-rbd python-rados ceph-common nova-compute
